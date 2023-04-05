@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Employee.Database\Employee.Database.csproj" />
       <ProjectReference Include="..\Employee.Data\Employee.Data.csproj" />
       <ProjectReference Include="..\Employee.Services\Employee.Services.csproj" />
