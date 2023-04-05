@@ -2,6 +2,7 @@ using Employee.Data.Forms.Validation;
 using Employee.Database.DatabaseRepository;
 using Employee.Database.EntityFramework;
 using Employee.Services.AppServices;
+using Employee.Services.AppServices.EmployeeAppService;
 using Employee.Services.AppServices.UserAppService;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -47,6 +48,7 @@ builder.Services.AddAuthentication("jwt")
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IEmployeeService, EmployeeService>();
 
 builder.Services.AddControllers();
 

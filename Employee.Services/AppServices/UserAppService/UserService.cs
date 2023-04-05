@@ -74,7 +74,8 @@ public class UserService : IUserService
         => _ctx.GetAll().FirstOrDefault(x => x.Email.Equals(email));
 
     private bool PersonalIdExists(ulong? personalId)
-        => _ctx.GetAll().Any(x => x.PersonalId.Equals(personalId));
+        => personalId is not null && _ctx.GetAll().Any(x => x.PersonalId.Equals(personalId));
+
 
     private static bool PasswordIsCorrect(string providedPassword, string userPassword)
         => PasswordHasher.VerifyPassword(providedPassword, userPassword);
