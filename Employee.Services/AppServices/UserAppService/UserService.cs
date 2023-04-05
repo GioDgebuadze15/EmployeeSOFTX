@@ -17,18 +17,22 @@ public class UserService : IUserService
 
     public async Task<RegistrationResponse> RegisterUser(CreateUserForm createUserForm)
     {
+        //Todo: correct the logic here
         var existedUser = _ctx.GetAll().FirstOrDefault(x => x.Email.Equals(createUserForm.Email));
+        var existedPersonalNumber = _ctx.GetAll().FirstOrDefault(x => x.PersonalId.Equals(createUserForm.PersonalId));
         if (existedUser is not null) return new RegistrationResponse(400, "User already exists!", null);
+        if (existedPersonalNumber is not null) return new RegistrationResponse(400, "Personal Id already exists!", null);
 
         var user = new User
         {
             Id = Guid.NewGuid().ToString(),
             FirstName = createUserForm.FirstName,
             LastName = createUserForm.LastName,
+            Email = createUserForm.Email,
             PersonalId = createUserForm.PersonalId,
             Gender = createUserForm.Gender != null ? _genderParser.Parse(createUserForm.Gender) : null,
             DateOfBirth = createUserForm.DateOfBirth,
-            Password = createUserForm.Password,
+            Password = PasswordHasher.HashPassword(createUserForm.Password),
         };
         await _ctx.Add(user);
         //Todo: generate token here
