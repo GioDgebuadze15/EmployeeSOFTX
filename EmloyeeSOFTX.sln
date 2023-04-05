@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Employee.Database", "Employ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Employee.Services", "Employee.Services\Employee.Services.csproj", "{EEC9498C-39B7-47E7-AAF1-6DD5C0AAA16F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyGenerator", "KeyGenerator\KeyGenerator.csproj", "{F9C3E35B-1980-4E1E-9030-13C28CCD1645}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{EEC9498C-39B7-47E7-AAF1-6DD5C0AAA16F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEC9498C-39B7-47E7-AAF1-6DD5C0AAA16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEC9498C-39B7-47E7-AAF1-6DD5C0AAA16F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9C3E35B-1980-4E1E-9030-13C28CCD1645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9C3E35B-1980-4E1E-9030-13C28CCD1645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9C3E35B-1980-4E1E-9030-13C28CCD1645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9C3E35B-1980-4E1E-9030-13C28CCD1645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -21,4 +21,10 @@ public class UserController : ApiController
     {
         return Ok(await _iUserService.RegisterUser(createUserForm));
     }
+
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] LoginUserForm loginUserForm)
+    {
+        return Ok(_iUserService.LoginUser(loginUserForm));
+    }
 }

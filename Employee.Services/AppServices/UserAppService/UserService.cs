@@ -1,7 +1,10 @@
-﻿using Employee.Data.Forms;
+﻿using System.Security.Claims;
+using Employee.Data.Forms;
 using Employee.Data.Models;
 using Employee.Database.DatabaseRepository;
 using Employee.Services.AppServices.ParserService;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Employee.Services.AppServices.UserAppService;
 
@@ -17,11 +20,9 @@ public class UserService : IUserService
 
     public async Task<RegistrationResponse> RegisterUser(CreateUserForm createUserForm)
     {
-        //Todo: correct the logic here
-        var existedUser = _ctx.GetAll().FirstOrDefault(x => x.Email.Equals(createUserForm.Email));
-        var existedPersonalNumber = _ctx.GetAll().FirstOrDefault(x => x.PersonalId.Equals(createUserForm.PersonalId));
-        if (existedUser is not null) return new RegistrationResponse(400, "User already exists!", null);
-        if (existedPersonalNumber is not null) return new RegistrationResponse(400, "Personal Id already exists!", null);
+        if (UserExists(createUserForm.Email)) return new RegistrationResponse(400, "User already exists!", null);
+        if (PersonalIdExists(createUserForm.PersonalId))
+            return new RegistrationResponse(400, "Personal Id already exists!", null);
 
         var user = new User
         {
@@ -35,7 +36,46 @@ public class UserService : IUserService
             Password = PasswordHasher.HashPassword(createUserForm.Password),
         };
         await _ctx.Add(user);
-        //Todo: generate token here
-        return new RegistrationResponse(200, null, "token");
+        var token = GenerateJwtToken(user);
+        return new RegistrationResponse(200, null, token);
     }
+
+    public LoginResponse LoginUser(LoginUserForm loginUserForm)
+    {
+        var user = GetUser(loginUserForm.Email);
+        if (user is null || !PasswordIsCorrect(loginUserForm.Password, user.Password))
+            return new LoginResponse(404, "Incorrect data!", null);
+
+        var token = GenerateJwtToken(user);
+        return new LoginResponse(200, null, token);
+    }
+
+    private static string GenerateJwtToken(User user)
+    {
+        var handler = new JsonWebTokenHandler();
+        var key = new RsaSecurityKey(RsaKey.GetRsaKey());
+        var token = handler.CreateToken(new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email),
+            }),
+            Expires = DateTime.UtcNow.AddDays(1),
+            SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256),
+        });
+        return token ?? "empty";
+    }
+
+    private bool UserExists(string email)
+        => _ctx.GetAll().Any(x => x.Email.Equals(email));
+
+    private User? GetUser(string email)
+        => _ctx.GetAll().FirstOrDefault(x => x.Email.Equals(email));
+
+    private bool PersonalIdExists(ulong? personalId)
+        => _ctx.GetAll().Any(x => x.PersonalId.Equals(personalId));
+
+    private static bool PasswordIsCorrect(string providedPassword, string userPassword)
+        => PasswordHasher.VerifyPassword(providedPassword, userPassword);
 }
