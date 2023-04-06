@@ -8,9 +8,9 @@ public class Employee : BaseModel<int>
 
     [Required] public string LastName { get; set; }
 
-    public string Email { get; set; }
+    [Required] public string Email { get; set; }
 
-    public ulong? PersonalId { get; set; }
+    [Required] public ulong PersonalId { get; set; }
 
     public Gender? Gender { get; set; }
 

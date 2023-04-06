@@ -16,9 +16,9 @@ public class CreateEmployeeValidation:AbstractValidator<CreateEmployeeForm>
             .WithMessage("Invalid email address.");
         
         RuleFor(x => x.PersonalId.ToString())
-            .Must(pid => string.IsNullOrEmpty(pid) || pid.Length == 11)
+            .Length(11)
             .WithName("PersonalId")
-            .WithMessage("PersonalId must be empty or exactly 11 digits long.");
+            .WithMessage("PersonalId must be exactly 11 digits long.");
 
         RuleFor(x => x.Position).NotEmpty().WithMessage("Position is required.");
         RuleFor(x => x.EmployeeStatus).IsInEnum().WithMessage("EmployeeStatus is not correct.");

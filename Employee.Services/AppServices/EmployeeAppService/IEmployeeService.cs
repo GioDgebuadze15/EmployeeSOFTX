@@ -7,6 +7,7 @@ public interface IEmployeeService
 {
     object GetEmployeeById(int id);
 
+    object GetEmployeeBySearchValue(string searchString);
     IEnumerable<object> GetAllEmployees();
 
     Task<AddEmployeeResponse> AddEmployee(CreateEmployeeForm createEmployeeForm);

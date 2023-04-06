@@ -9,7 +9,7 @@ public class CreateEmployeeForm
     public string LastName { get; set; }
 
     public string Email { get; set; }
-    public ulong? PersonalId { get; set; }
+    public ulong PersonalId { get; set; }
 
     public string? Gender { get; set; }
 
