@@ -59,6 +59,8 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssembly(typeof(CreateUserFormValidation).Assembly);
 builder.Services.AddValidatorsFromAssembly(typeof(LoginUserFormValidation).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(CreateEmployeeValidation).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(UpdateEmployeeValidation).Assembly);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -114,6 +116,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();

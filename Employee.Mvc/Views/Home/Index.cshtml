@@ -1,8 +1,12 @@
-﻿@{
+﻿@model List<Employee.Mvc.Controllers.test>
+@{
     ViewData["Title"] = "Home Page";
+
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@await Html.PartialAsync("Components/table-component", Model)
+
+@* <form asp-action="DeleteEmployee" asp-controller="Home" method="post"> *@
+    @* <input value="3" for="id" name="id" type="hidden"> *@
+    @* <button type="submit">s</button> *@
+@* </form> *@

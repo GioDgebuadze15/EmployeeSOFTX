@@ -1,7 +1,11 @@
+using Employee.Services.Middlewares;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+// builder.Services.AddSingleton<ITokenStore, InMemoryTokenStore>();
 
 var app = builder.Build();
 
@@ -15,6 +19,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// app.UseMiddleware<TokenAuthMiddleware>();
 
 app.UseRouting();
 

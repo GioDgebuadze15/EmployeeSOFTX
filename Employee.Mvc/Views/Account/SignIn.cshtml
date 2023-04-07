@@ -1,0 +1,54 @@
+﻿@model Employee.Data.Forms.LoginUserForm
+
+@{
+    Layout = "_Layout";
+}
+
+<form class="gradient-custom" method="post" asp-action="SignIn" asp-controller="Account">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card text-white" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+
+                        <div class="md-5 mt-md-4 pb-5">
+
+                            <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                            <p class="text-white-50 mb-5">Please enter your login and password!</p>
+
+                            <div class="form-outline mb-4">
+                                <input type="email" class="form-control form-control-lg"
+                                       placeholder="Enter your email" asp-for="@Model.Email" required/>
+                                <span asp-validation-for="@Model.Email" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="form-outline mb-4">
+                                <input
+                                    class="form-control form-control-lg"
+                                    type="password"
+                                    placeholder="Enter your password" asp-for="@Model.Password" required/>
+                                <span asp-validation-for="@Model.Password" class="text-danger"></span>
+                            </div>
+
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+
+                        </div>
+
+                        <div>
+                            <p class="mb-0">
+                                Don't have an account?
+                                <a asp-controller="Account" asp-action="SignUp" class="signUpButton">
+                                    <strong class="text-primary">Sign Up</strong>
+                                </a>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

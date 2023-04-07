@@ -1,0 +1,12 @@
+.card {
+    background-color: #272f40;
+}
+
+.signUpButton {
+    text-decoration: none;
+}
+
+.signUpButton:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}

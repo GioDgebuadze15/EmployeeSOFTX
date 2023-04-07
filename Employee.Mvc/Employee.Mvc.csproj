@@ -12,6 +12,21 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\images" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Components\footer-component.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Components\table-component.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Employee.Data\Employee.Data.csproj" />
+      <ProjectReference Include="..\Employee.Services\Employee.Services.csproj" />
     </ItemGroup>
 
 </Project>

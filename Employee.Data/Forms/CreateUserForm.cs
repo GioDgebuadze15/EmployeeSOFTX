@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Employee.Data.Forms;
+﻿namespace Employee.Data.Forms;
 
 public class CreateUserForm
 {
