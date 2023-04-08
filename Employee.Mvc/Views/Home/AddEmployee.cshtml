@@ -1,0 +1,108 @@
+﻿@using Employee.Data.Models
+@using CreateEmployeeForm = Employee.Data.Forms.CreateEmployeeForm
+@model CreateEmployeeForm
+
+@{
+    Layout = "_Layout";
+}
+
+
+<form class="gradient-custom" asp-action="AddEmployee" asp-controller="Home" method="post">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card text-white" style="border-radius: 1rem;">
+                    <div class="card-body px-5 text-center">
+
+                        <div class="md-5">
+
+                            <h2 class="fw-bold mb-2 text-uppercase">Add Employee</h2>
+                            <p class="text-white-50 mb-4">Please enter employee information!</p>
+
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-outline mb-3">
+                                        <input type="text" class="form-control form-control-lg"
+                                               placeholder="First name" asp-for="FirstName"/>
+                                        <span asp-validation-for="@Model.FirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-outline mb-3">
+                                        <input type="text" class="form-control form-control-lg"
+                                               placeholder="Last name" asp-for="LastName"/>
+                                        <span asp-validation-for="@Model.LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-outline mb-3">
+                                <input type="email" class="form-control form-control-lg"
+                                       placeholder="Email" asp-for="Email"/>
+                                <span asp-validation-for="@Model.Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-outline mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       placeholder="Personal Id" asp-for="PersonalId" value=""/>
+                                <span asp-validation-for="@Model.PersonalId" class="text-danger"></span>
+                            </div>
+
+
+                            @* <div class="row"> *@
+                                @* <div class="col"> *@
+                                    <select class="form-select mb-3" asp-for="Gender">
+                                        <option class=" form-select" value="" disabled selected hidden>Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                    <span asp-validation-for="@Model.Gender" class="text-danger"></span>
+                                @* </div> *@
+                            @* </div> *@
+
+                            <div class="form-outline mb-3">
+                                <input type="number" class="form-control form-control-lg"
+                                       placeholder="Mobile Number" asp-for="MobileNumber"/>
+                                <span asp-validation-for="@Model.MobileNumber" class="text-danger"></span>
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       placeholder="Position" asp-for="Position"/>
+                                <span asp-validation-for="@Model.Position" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="row mb-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <label asp-for="EmployeeStatus">Employee Status</label>
+                                        <select class="form-select mb-3" asp-for="EmployeeStatus">
+                                            @foreach (var item in Enum.GetValues(typeof(EmployeeStatus)))
+                                            {
+                                                <option value="@item">@item</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="@Model.EmployeeStatus" class="text-danger"></span>
+                                    </div>
+                                    <div class="col">
+                                        <label for="dateOfFire">Date of Fire</label>
+                                        <input class="form-control me-2" type="date" id="dateOfFire" asp-for="DateOfFire"/>
+                                        <span asp-validation-for="@Model.DateOfFire" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <button class="btn btn-outline-light px-5" type="submit">Add</button>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

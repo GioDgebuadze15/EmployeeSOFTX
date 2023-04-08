@@ -1,8 +1,11 @@
-﻿@model List<Employee.Mvc.Controllers.test>
+﻿@model List<Employee.Data.Models.Employee>
 
-<div class="d-flex align-items-center justify-content-end mb-4">
-    <button class="btn btn-success"><i class="mdi mdi-plus"></i> Add</button>
-</div>
+<form asp-action="AddEmployee" asp-controller="Home" method="get">
+    <div class="d-flex align-items-center justify-content-end mb-4">
+        <button class="btn btn-success"><i class="mdi mdi-plus"></i> Add</button>
+    </div>
+</form>
+
 <div class="input-group mb-3">
     <input type="search" class="form-control bg-transparent text-white search" placeholder="Search"/>
     <span class="input-group-text bg-transparent text-white search-span">
@@ -38,10 +41,17 @@
                 <td>@employee.MobileNumber</td>
                 <td>@employee.Position</td>
                 <td>@employee.EmployeeStatus</td>
-                <td>@employee.DateOfFire</td>
+                <td>@employee.DateOfFire?.ToShortDateString()</td>
                 <td>
-                    <i class="mdi mdi-pencil mdi-24px edit"></i>
-                    <i class="mdi mdi-trash-can-outline mdi-24px delete"></i>
+                    <a asp-action="EditEmployee" asp-controller="Home" asp-route-id="@employee.Id">
+                        <i class="mdi mdi-pencil mdi-24px edit"></i>
+                    </a>
+                    <form method="post" asp-controller="Home" asp-action="DeleteEmployee" asp-route-id="@employee.Id">
+                        <button type="submit">
+                            <i class="mdi mdi-trash-can-outline mdi-24px delete"></i>
+
+                        </button>
+                    </form>
                 </td>
             }
         </tr>

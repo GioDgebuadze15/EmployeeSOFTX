@@ -1,0 +1,96 @@
+﻿@using Employee.Data.Models
+@using UpdateEmployeeForm = Employee.Data.Forms.UpdateEmployeeForm
+@model UpdateEmployeeForm
+
+@{
+    Layout = "_Layout";
+}
+
+<form class="gradient-custom">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card text-white" style="border-radius: 1rem;">
+                    <div class="card-body px-5 text-center">
+
+                        <div class="md-5">
+
+                            <h2 class="fw-bold mb-2 text-uppercase">Edit Employee</h2>
+                            <p class="text-white-50 mb-4">Please update employee information!</p>
+
+
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-outline mb-3">
+                                        <input type="text" class="form-control form-control-lg"
+                                               placeholder="First name" value="@Model.FirstName"/>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-outline mb-3">
+                                        <input type="text" class="form-control form-control-lg"
+                                               placeholder="Last name" value="@Model.LastName"/>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-outline mb-3">
+                                <input type="email" class="form-control form-control-lg"
+                                       placeholder="Email" value="@Model.Email"/>
+                            </div>
+
+                            <div class="form-outline mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       placeholder="Personal Id" value="@Model.PersonalId"/>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col">
+                                    <select class="form-select mb-3">
+                                        <option class=" form-select" value="@Model.Gender" disabled selected hidden>@Model.Gender</option>
+                                        <option value="@Model.Gender">Male</option>
+                                        <option value="@Model.Gender">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <select class="form-select mb-3">
+                                        <option class=" form-select" value="@Model.EmployeeStatus" disabled selected hidden>@Model.EmployeeStatus</option>
+                                        @foreach (var item in Enum.GetValues(typeof(EmployeeStatus)))
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-outline mb-3">
+                                <input type="number" class="form-control form-control-lg"
+                                       placeholder="Mobile Number" value="@Model.MobileNumber"/>
+                            </div>
+                            <div class="form-outline mb-3">
+                                <input type="text" class="form-control form-control-lg"
+                                       placeholder="Position" value="@Model.Position"/>
+                            </div>
+
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="dateOfFire">Date of Fire</label>
+                                    <input class="form-control me-2" type="date" id="dateOfFire" value="@Model.DateOfFire?.ToString("yyyy-MM-dd")"/>
+                                </div>
+                            </div>
+
+
+                            <button class="btn btn-outline-light px-5" type="submit">Update</button>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

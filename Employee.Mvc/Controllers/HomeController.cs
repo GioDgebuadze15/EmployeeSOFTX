@@ -1,64 +1,170 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
+using Employee.Data.Forms;
+using Employee.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Employee.Mvc.Models;
-using Newtonsoft.Json;
+using Employee.Services.AppServices.HttpClientService;
+using Employee.Services.AppServices.ParserService;
+using Employee.Services.JsonConverters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Employee.Mvc.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientWrapper _iHttpClientWrapper;
 
-    public HomeController(ILogger<HomeController> logger, HttpClient httpClient)
+    public HomeController(ILogger<HomeController> logger, IHttpClientWrapper iHttpClientWrapper)
     {
         _logger = logger;
-        _httpClient = httpClient;
+        _iHttpClientWrapper = iHttpClientWrapper;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        // Call the API endpoint to retrieve data
-        var response = await _httpClient.GetAsync("https://localhost:7219/api/employee");
-
-        // Check if the request was successful
-        if (response.IsSuccessStatusCode)
+        try
         {
-            // Convert the response content to a string
-            var responseBody = await response.Content.ReadAsStringAsync();
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new GenderConverter(),
+                    new EmployeeStatusConverter()
+                }
+            };
+            using var response = await _iHttpClientWrapper.GetAsync("api/employee");
 
-            // Deserialize the JSON response into your model class
-            var model = JsonConvert.DeserializeObject<List<test>>(responseBody);
-
-            // Pass the model to your view
-            return View(model);
+            var result = await response.Content.ReadFromJsonAsync<List<Data.Models.Employee>>(options);
+            return View(result);
         }
+        catch (JsonException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+        catch (HttpRequestException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to retrieve data from API. Status code: {ex.StatusCode}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+    }
 
-        // else
-        // {
-        //     // Handle errors
-        //     string errorMessage = $"Failed to retrieve data from API. Status code: {response.StatusCode}";
-        //     return View("Error", new ErrorViewModel { Message = errorMessage });
-        // }
-        return View();
+    [HttpGet]
+    [Authorize]
+    public IActionResult AddEmployee()
+    {
+        return View(new CreateEmployeeForm());
     }
 
     [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> AddEmployee(CreateEmployeeForm createEmployeeForm)
+    {
+        if (!ModelState.IsValid)
+            return View("AddEmployee", createEmployeeForm);
+
+        var cookieParser = new CookieParser(HttpContext);
+        if (!cookieParser.HasToken)
+            return View("Error",
+                new ErrorViewModel {Message = "You are not allowed!"});
+        try
+        {
+            using var response =
+                await _iHttpClientWrapper.PostAsync("api/employee", new StringContent(""), cookieParser.Token!);
+
+            var result = await response.Content.ReadFromJsonAsync<AddEmployeeResponse>();
+            return result?.StatusCode switch
+            {
+                200 => RedirectToAction("Index"),
+                _ => View("Error",
+                    new ErrorViewModel {Message = result?.Error ?? "An error occured while adding employee!"})
+            };
+        }
+        catch (JsonException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+        catch (HttpRequestException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to retrieve data from API. Status code: {ex.StatusCode}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+    }
+
+    [HttpGet("EditEmployee/{id::int}")]
+    [Authorize]
+    public async Task<IActionResult> EditEmployee(int id)
+    {
+        try
+        {
+            using var response = await _iHttpClientWrapper.GetAsync($"api/employee/{id}");
+
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new EmployeeStatusConverter()
+                }
+            };
+            var result = await response.Content.ReadFromJsonAsync<UpdateEmployeeForm>(options);
+            return View(result);
+        }
+        catch (JsonException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+        catch (HttpRequestException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to retrieve data from API. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+    }
+
+
+    [HttpPost]
+    [Authorize]
     public async Task<IActionResult> DeleteEmployee(int id)
     {
-        var response = await _httpClient.DeleteAsync($"https://localhost:7219/api/employee/{id}");
-        if (response.IsSuccessStatusCode)
+        var cookieParser = new CookieParser(HttpContext);
+        if (!cookieParser.HasToken)
+            return View("Error",
+                new ErrorViewModel {Message = "You are not allowed!"});
+        try
         {
-            // Convert the response content to a string
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Deserialize the JSON response into your model class
-            var model = JsonConvert.DeserializeObject<List<test>>(responseBody);
-
-            // Pass the model to your view
+            using var response = await _iHttpClientWrapper.DeleteAsync($"api/employee/{id}", cookieParser.Token!);
+            var result = await response.Content.ReadFromJsonAsync<DeleteEmployeeResponse>();
+            return result?.StatusCode switch
+            {
+                200 => RedirectToAction("Index"),
+                _ => View("Error",
+                    new ErrorViewModel {Message = result?.Error ?? "An error occured while processing deletion!"})
+            };
         }
-
-        return RedirectToAction("Index");
+        catch (JsonException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
+        catch (HttpRequestException ex)
+        {
+            //Todo: log the exception into file 
+            var errorMessage = $"Failed to retrieve data from API. Message: {ex.Message}";
+            return View("Error", new ErrorViewModel {Message = errorMessage});
+        }
     }
 
     public IActionResult Privacy()
@@ -71,29 +177,4 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
     }
-}
-
-public class test
-{
-    public int Id { get; set; }
-
-    public string FirstName { get; set; }
-
-    public string LastName { get; set; }
-
-    public string Email { get; set; }
-
-    public ulong PersonalId { get; set; }
-
-    public string? Gender { get; set; }
-
-    public string? MobileNumber { get; set; }
-
-    public string Position { get; set; }
-
-    public string EmployeeStatus { get; set; }
-
-    public DateTime? DateOfFire { get; set; }
-
-    public DateTime CreatedDate { get; set; }
 }
