@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Text.Json;
 using Employee.Data.Forms;
 using Employee.Data.Models;
 using Microsoft.AspNetCore.Mvc;
-using Employee.Mvc.Models;
-using Employee.Services.AppServices.HttpClientService;
-using Employee.Services.AppServices.ParserService;
+using Employee.Services.AppServices.ApiAppService;
+using Employee.Services.AppServices.ApiAppService.ApiResponseAppService;
 using Employee.Services.JsonConverters;
 using Microsoft.AspNetCore.Authorization;
 
@@ -13,54 +11,27 @@ namespace Employee.Mvc.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly IHttpClientWrapper _iHttpClientWrapper;
+    private readonly IApiService _iApiService;
 
-    public HomeController(ILogger<HomeController> logger, IHttpClientWrapper iHttpClientWrapper)
+    public HomeController(IApiService iApiService)
     {
-        _logger = logger;
-        _iHttpClientWrapper = iHttpClientWrapper;
+        _iApiService = iApiService;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index()
-    {
-        try
-        {
-            JsonSerializerOptions options = new()
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters =
-                {
-                    new GenderConverter(),
-                    new EmployeeStatusConverter()
-                }
-            };
-            using var response = await _iHttpClientWrapper.GetAsync("api/employee");
+        => await _iApiService.HandleApiGetCall<object, List<Data.Models.Employee>>
+        ("api/employee",
+            JsonSerializationOptions.GetDefaultOptions(),
+            "Index");
 
-            var result = await response.Content.ReadFromJsonAsync<List<Data.Models.Employee>>(options);
-            return View(result);
-        }
-        catch (JsonException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-        catch (HttpRequestException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to retrieve data from API. Status code: {ex.StatusCode}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-    }
 
     [HttpGet]
     [Authorize]
     public IActionResult AddEmployee()
-    {
-        return View(new CreateEmployeeForm());
-    }
+        =>
+            View(new CreateEmployeeForm());
+
 
     [HttpPost]
     [Authorize]
@@ -69,103 +40,61 @@ public class HomeController : Controller
         if (!ModelState.IsValid)
             return View("AddEmployee", createEmployeeForm);
 
-        var cookieParser = new CookieParser(HttpContext);
-        if (!cookieParser.HasToken)
-            return View("Error",
-                new ErrorViewModel {Message = "You are not allowed!"});
-        try
-        {
-            using var response =
-                await _iHttpClientWrapper.PostAsync("api/employee", new StringContent(""), cookieParser.Token!);
-
-            var result = await response.Content.ReadFromJsonAsync<AddEmployeeResponse>();
-            return result?.StatusCode switch
-            {
-                200 => RedirectToAction("Index"),
-                _ => View("Error",
-                    new ErrorViewModel {Message = result?.Error ?? "An error occured while adding employee!"})
-            };
-        }
-        catch (JsonException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-        catch (HttpRequestException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to retrieve data from API. Status code: {ex.StatusCode}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
+        return await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
+        (HttpMethod.Post,
+            "api/employee",
+            createEmployeeForm,
+            null,
+            "Index", HttpContext);
     }
 
     [HttpGet("EditEmployee/{id::int}")]
     [Authorize]
     public async Task<IActionResult> EditEmployee(int id)
     {
-        try
-        {
-            using var response = await _iHttpClientWrapper.GetAsync($"api/employee/{id}");
+        if (id < 1)
+            return View("Error",
+                new ErrorViewModel {Message = "An error occured!"});
 
-            JsonSerializerOptions options = new()
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters =
-                {
-                    new EmployeeStatusConverter()
-                }
-            };
-            var result = await response.Content.ReadFromJsonAsync<UpdateEmployeeForm>(options);
-            return View(result);
-        }
-        catch (JsonException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-        catch (HttpRequestException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to retrieve data from API. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
+        return await _iApiService.HandleApiGetCall<object, Data.Models.Employee>
+        ($"api/employee/{id}",
+            JsonSerializationOptions.GetEmployeeOptions(),
+            "EditEmployee");
+    }
+
+    [HttpPost("EditEmployee/{id:int}")]
+    [Authorize]
+    public async Task<IActionResult> EditEmployee(int id, UpdateEmployeeForm updateEmployeeForm)
+    {
+        if (id < 1)
+            return View("Error",
+                new ErrorViewModel {Message = "An error occured!"});
+
+        if (!ModelState.IsValid)
+            return View("EditEmployee", updateEmployeeForm);
+
+        return await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
+        (HttpMethod.Put,
+            "api/employee",
+            updateEmployeeForm,
+            null,
+            "Index",
+            HttpContext);
     }
 
 
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> DeleteEmployee(int id)
-    {
-        var cookieParser = new CookieParser(HttpContext);
-        if (!cookieParser.HasToken)
-            return View("Error",
-                new ErrorViewModel {Message = "You are not allowed!"});
-        try
-        {
-            using var response = await _iHttpClientWrapper.DeleteAsync($"api/employee/{id}", cookieParser.Token!);
-            var result = await response.Content.ReadFromJsonAsync<DeleteEmployeeResponse>();
-            return result?.StatusCode switch
-            {
-                200 => RedirectToAction("Index"),
-                _ => View("Error",
-                    new ErrorViewModel {Message = result?.Error ?? "An error occured while processing deletion!"})
-            };
-        }
-        catch (JsonException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to parse json. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-        catch (HttpRequestException ex)
-        {
-            //Todo: log the exception into file 
-            var errorMessage = $"Failed to retrieve data from API. Message: {ex.Message}";
-            return View("Error", new ErrorViewModel {Message = errorMessage});
-        }
-    }
+        =>
+            await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
+            (HttpMethod.Delete,
+                $"api/employee/{id}",
+                null,
+                null,
+                "Index",
+                HttpContext);
+
 
     public IActionResult Privacy()
     {
@@ -173,8 +102,8 @@ public class HomeController : Controller
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Error(string errorMessage)
     {
-        return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
+        return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,Message = errorMessage});
     }
 }

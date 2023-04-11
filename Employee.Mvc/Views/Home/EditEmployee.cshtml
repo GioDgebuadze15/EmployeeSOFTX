@@ -6,7 +6,7 @@
     Layout = "_Layout";
 }
 
-<form class="gradient-custom">
+<form class="gradient-custom" asp-action="EditEmployee" asp-controller="Home" method="post">
     <div class="container">
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
@@ -23,13 +23,15 @@
                                 <div class="col">
                                     <div class="form-outline mb-3">
                                         <input type="text" class="form-control form-control-lg"
-                                               placeholder="First name" value="@Model.FirstName"/>
+                                               placeholder="First name" value="@Model.FirstName" asp-for="@Model.FirstName"/>
+                                        <span asp-validation-for="@Model.FirstName" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="form-outline mb-3">
                                         <input type="text" class="form-control form-control-lg"
-                                               placeholder="Last name" value="@Model.LastName"/>
+                                               placeholder="Last name" value="@Model.LastName" asp-for="@Model.LastName"/>
+                                        <span asp-validation-for="@Model.LastName" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -37,57 +39,58 @@
 
                             <div class="form-outline mb-3">
                                 <input type="email" class="form-control form-control-lg"
-                                       placeholder="Email" value="@Model.Email"/>
+                                       placeholder="Email" value="@Model.Email" asp-for="@Model.Email"/>
+                                <span asp-validation-for="@Model.Email" class="text-danger"></span>
                             </div>
 
                             <div class="form-outline mb-3">
                                 <input type="text" class="form-control form-control-lg"
-                                       placeholder="Personal Id" value="@Model.PersonalId"/>
+                                       placeholder="Personal Id" value="@Model.PersonalId" asp-for="@Model.PersonalId"/>
+                                <span asp-validation-for="@Model.PersonalId" class="text-danger"></span>
                             </div>
 
-
-                            <div class="row">
-                                <div class="col">
-                                    <select class="form-select mb-3">
-                                        <option class=" form-select" value="@Model.Gender" disabled selected hidden>@Model.Gender</option>
-                                        <option value="@Model.Gender">Male</option>
-                                        <option value="@Model.Gender">Female</option>
-                                    </select>
-                                </div>
-                                <div class="col">
-                                    <select class="form-select mb-3">
-                                        <option class=" form-select" value="@Model.EmployeeStatus" disabled selected hidden>@Model.EmployeeStatus</option>
-                                        @foreach (var item in Enum.GetValues(typeof(EmployeeStatus)))
-                                        {
-                                            <option value="@item">@item</option>
-                                        }
-                                    </select>
-                                </div>
+                            <div class="form-outline mb-3">
+                                <select class="form-select mb-3" asp-for="Gender">
+                                    <option class=" form-select" value="@Model.Gender" disabled selected hidden>@Model.Gender</option>
+                                    <option value="@Model.Gender">Male</option>
+                                    <option value="@Model.Gender">Female</option>
+                                    <span asp-validation-for="@Model.Gender" class="text-danger"></span>
+                                </select>
                             </div>
 
                             <div class="form-outline mb-3">
                                 <input type="number" class="form-control form-control-lg"
-                                       placeholder="Mobile Number" value="@Model.MobileNumber"/>
+                                       placeholder="Mobile Number" asp-for="MobileNumber" value="@Model.MobileNumber"/>
+                                <span asp-validation-for="@Model.MobileNumber" class="text-danger"></span>
                             </div>
                             <div class="form-outline mb-3">
                                 <input type="text" class="form-control form-control-lg"
-                                       placeholder="Position" value="@Model.Position"/>
+                                       placeholder="Position" asp-for="Position" value="@Model.Position"/>
+                                <span asp-validation-for="@Model.Position" class="text-danger"></span>
                             </div>
-
 
                             <div class="row mb-3">
-                                <div class="col">
-                                    <label for="dateOfFire">Date of Fire</label>
-                                    <input class="form-control me-2" type="date" id="dateOfFire" value="@Model.DateOfFire?.ToString("yyyy-MM-dd")"/>
+                                <div class="row">
+                                    <div class="col">
+                                        <label asp-for="EmployeeStatus">Employee Status</label>
+                                        <select class="form-select mb-3" asp-for="EmployeeStatus">
+                                            <option class=" form-select" value="@Model.EmployeeStatus" disabled selected hidden>@Model.EmployeeStatus</option>
+                                            @foreach (var item in Enum.GetValues(typeof(EmployeeStatus)))
+                                            {
+                                                <option value="@item">@item</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="@Model.EmployeeStatus" class="text-danger"></span>
+                                    </div>
+                                    <div class="col">
+                                        <label for="dateOfFire">Date of Fire</label>
+                                        <input class="form-control me-2" type="date" id="dateOfFire" asp-for="DateOfFire" value="@Model.DateOfFire?.ToString("yyyy-MM-dd")"/>
+                                        <span asp-validation-for="@Model.DateOfFire" class="text-danger"></span>
+                                    </div>
                                 </div>
                             </div>
-
-
                             <button class="btn btn-outline-light px-5" type="submit">Update</button>
-
                         </div>
-
-
                     </div>
                 </div>
             </div>

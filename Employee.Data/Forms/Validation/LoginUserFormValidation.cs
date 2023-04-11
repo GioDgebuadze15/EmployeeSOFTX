@@ -2,7 +2,7 @@
 
 namespace Employee.Data.Forms.Validation;
 
-public class LoginUserFormValidation : AbstractValidator<CreateUserForm>
+public class LoginUserFormValidation : AbstractValidator<LoginUserForm>
 {
     public LoginUserFormValidation()
     {

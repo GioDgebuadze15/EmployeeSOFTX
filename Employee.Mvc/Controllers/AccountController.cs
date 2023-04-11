@@ -1,73 +1,92 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
 using Employee.Data.Forms;
 using Employee.Data.Models;
+using Employee.Services.AppServices.ApiAppService;
+using Employee.Services.AppServices.ApiAppService.ApiResponseAppService;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace Employee.Mvc.Controllers;
 
 public class AccountController : Controller
 {
     private readonly ILogger<AccountController> _logger;
-    private readonly HttpClient _httpClient;
+    private readonly IApiService _iApiService;
 
-    public AccountController(ILogger<AccountController> logger, HttpClient httpClient)
+    public AccountController(ILogger<AccountController> logger, IApiService iApiService)
     {
         _logger = logger;
-        _httpClient = httpClient;
+        _iApiService = iApiService;
     }
 
 
-    // GET
+    [HttpGet]
     public IActionResult SignIn()
-    {
-        return View(new LoginUserForm());
-    }
+        => View(new LoginUserForm());
 
     [HttpPost]
     public async Task<IActionResult> SignIn(LoginUserForm loginUserForm)
     {
         if (!ModelState.IsValid)
-            return View();
+            return View("SignIn", loginUserForm);
 
-        var json = JsonConvert.SerializeObject(loginUserForm);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var result = await _iApiService.HandleApiCall<object, ApiResponseUserBase>
+        (HttpMethod.Post,
+            "api/user/login",
+            loginUserForm,
+            null,
+            "Index",
+            null
+        );
+        
+        var token = (result as ContentResult)?.Content;
+        if (token is null) return result;
 
-        // Call the API endpoint to retrieve data
-        var response = await _httpClient.PostAsync("https://localhost:7219/api/user/login", content);
-
-        // Check if the request was successful
-        if (response.IsSuccessStatusCode)
-        {
-            // Convert the response content to a string
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Deserialize the JSON response into your model class
-            var model = JsonConvert.DeserializeObject<LoginResponse>(responseBody);
-
-            // Pass the model to your view
-            if (model is {Error: { }})
-            {
-                ModelState.AddModelError("All", model.Error);
-            }
-
-            // set token cookie
-            HttpContext.Response.Cookies.Append("employee-token",model.Token);
-            return RedirectToAction("Index", "Home");
-        }
-
-        return View();
-    }
-
-
-    public IActionResult SignUp()
-    {
-        return View();
+        HttpContext.Response.Cookies.Append("employee-token", token);
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpPost]
-    public IActionResult SignUp(CreateUserForm createUserForm)
+    public IActionResult LogOut()
     {
-        return View();
+        HttpContext.Response.Cookies.Delete("employee-token");
+        return RedirectToAction("Index", "Home");
+    }
+
+
+    [HttpGet]
+    public IActionResult SignUp()
+    {
+        return View(new CreateUserForm());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SignUp(CreateUserForm createUserForm)
+    {
+        if (!ModelState.IsValid)
+            return View("SignUp", createUserForm);
+
+        var result = await _iApiService.HandleApiCall<object, ApiResponseUserBase>
+        (HttpMethod.Post,
+            "api/user/register",
+            createUserForm,
+            null,
+            "Index",
+            null
+        );
+
+
+        var token = (result as ContentResult)?.Content;
+        if (token is null) return result;
+
+        HttpContext.Response.Cookies.Append("employee-token", token);
+        return RedirectToAction("Index", "Home");
+    }
+
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error(string errorMessage)
+    {
+        return View(new ErrorViewModel
+            {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = errorMessage});
     }
 }

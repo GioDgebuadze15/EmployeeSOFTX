@@ -11,7 +11,7 @@ public class EmployeeStatusConverter : JsonConverter<EmployeeStatus>
         var employeeStatusStr = reader.GetString();
         return employeeStatusStr switch
         {
-            "In state" => EmployeeStatus.InState,
+            "In State" => EmployeeStatus.InState,
             "Out Of State" => EmployeeStatus.OutOfState,
             "Fired" => EmployeeStatus.Fired,
             _ => throw new JsonException($"Invalid employee status value: {employeeStatusStr}"),

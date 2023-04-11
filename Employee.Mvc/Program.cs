@@ -1,5 +1,6 @@
 using Employee.Data.Forms.Validation;
 using Employee.Services.AppServices;
+using Employee.Services.AppServices.ApiAppService;
 using Employee.Services.AppServices.HttpClientService;
 using Employee.Services.Middlewares;
 using FluentValidation;
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IHttpClientWrapper, HttpClientWrapper>();
+builder.Services.AddTransient<IApiService, ApiService>();
 // builder.Services.AddSingleton<ITokenStore, InMemoryTokenStore>();
 
 builder.Services.AddAuthentication("jwt")
