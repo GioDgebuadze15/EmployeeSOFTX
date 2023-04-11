@@ -3,6 +3,7 @@
 @model UpdateEmployeeForm
 
 @{
+    ViewBag.Title = "Edit Employee";
     Layout = "_Layout";
 }
 
@@ -52,8 +53,10 @@
                             <div class="form-outline mb-3">
                                 <select class="form-select mb-3" asp-for="Gender">
                                     <option class=" form-select" value="@Model.Gender" disabled selected hidden>@Model.Gender</option>
-                                    <option value="@Model.Gender">Male</option>
-                                    <option value="@Model.Gender">Female</option>
+                                    @foreach (var item in Enum.GetValues(typeof(Gender)))
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
                                     <span asp-validation-for="@Model.Gender" class="text-danger"></span>
                                 </select>
                             </div>

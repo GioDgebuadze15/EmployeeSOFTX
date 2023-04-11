@@ -113,7 +113,7 @@ public class EmployeeService : IEmployeeService
         catch (InvalidOperationException ex)
         {
             _logger.LogError(ex, ex.Message);
-            return new DeleteEmployeeResponse(404, "Cant find person to delete.", null);
+            return new DeleteEmployeeResponse(404, "Cant find employee to delete.", null);
         }
     }
 

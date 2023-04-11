@@ -4,6 +4,7 @@ using Employee.Database.EntityFramework;
 using Employee.Services.AppServices;
 using Employee.Services.AppServices.EmployeeAppService;
 using Employee.Services.AppServices.UserAppService;
+using Employee.Services.Middlewares;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +15,14 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddFile(builder.Configuration["File:Path"]);
+});
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDb")));
@@ -120,6 +129,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
+
+app.UseMiddleware<LoggingMiddleware>();
 
 app.MapControllers();
 

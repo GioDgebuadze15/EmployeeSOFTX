@@ -3,6 +3,8 @@ obj/
 .idea/
 /Employee.Api/key
 /Employee.Mvc/key
+/Employee.Api/Logs/
+/Employee.Mvc/Logs/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

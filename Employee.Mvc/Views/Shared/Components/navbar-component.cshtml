@@ -6,9 +6,9 @@
 
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid d-flex justify-content-between">
-        <div>
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SoftX</a>
-        </div>
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+            <img width="96" height="38" src="~/images/softx.png" alt="SoftX logo" style="border: none">
+        </a>
         @if (isUserLoggedIn)
         {
             <div class="d-flex align-items-center">

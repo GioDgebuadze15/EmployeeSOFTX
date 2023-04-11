@@ -11,12 +11,20 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+builder.Services.AddLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddFile(builder.Configuration["File:Path"]);
+});
+
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<IHttpClientWrapper, HttpClientWrapper>();
 builder.Services.AddTransient<IApiService, ApiService>();
-// builder.Services.AddSingleton<ITokenStore, InMemoryTokenStore>();
 
 builder.Services.AddAuthentication("jwt")
     .AddJwtBearer("jwt", o =>
@@ -58,22 +66,20 @@ builder.Services.AddValidatorsFromAssembly(typeof(UpdateEmployeeValidation).Asse
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// app.UseMiddleware<TokenAuthMiddleware>();
 
 app.UseRouting();
 
 app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -8,12 +8,10 @@ namespace Employee.Mvc.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly ILogger<AccountController> _logger;
     private readonly IApiService _iApiService;
 
-    public AccountController(ILogger<AccountController> logger, IApiService iApiService)
+    public AccountController(IApiService iApiService)
     {
-        _logger = logger;
         _iApiService = iApiService;
     }
 
