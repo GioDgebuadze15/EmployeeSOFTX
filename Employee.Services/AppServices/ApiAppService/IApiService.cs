@@ -1,24 +1,17 @@
-﻿using System.Text.Json;
+﻿using Employee.Data.Forms;
 using Employee.Services.AppServices.ApiAppService.ApiResponseAppService;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Employee.Services.AppServices.ApiAppService;
 
 public interface IApiService
 {
-    Task<IActionResult> HandleApiGetCall<TRequest, TResponse>(string apiPath, JsonSerializerOptions? options,
-        string redirectPageName)
-        where TRequest : class
-        where TResponse : class;
+    Task<List<Data.Models.Employee>> GetAllEmployees();
+    Task<UpdateEmployeeForm> GetEmployee(int id);
+    Task<ApiResponseEmployeeBase?> AddEmployee(CreateEmployeeForm createEmployeeForm, HttpContext httpContext);
+    Task<ApiResponseEmployeeBase?> EditEmployee(UpdateEmployeeForm updateEmployeeForm, HttpContext httpContext);
+    Task<ApiResponseEmployeeBase?> DeleteEmployee(int id, HttpContext httpContext);
 
-    Task<IActionResult> HandleApiCall<TRequest, TResponse>(
-        HttpMethod httpMethod,
-        string apiPath,
-        TRequest? requestData,
-        JsonSerializerOptions? options,
-        string redirectAction,
-        HttpContext? httpContext)
-        where TRequest : class
-        where TResponse : IApiResponse;
+    Task<ApiResponseUserBase?> LoginUser(LoginUserForm loginUserForm);
+    Task<ApiResponseUserBase?> RegisterUser(CreateUserForm createUserForm);
 }

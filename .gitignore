@@ -2,6 +2,7 @@ bin/
 obj/
 .idea/
 /Employee.Api/key
+/Employee.Mvc/key
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

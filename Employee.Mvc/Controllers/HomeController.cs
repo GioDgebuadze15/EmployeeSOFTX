@@ -3,8 +3,6 @@ using Employee.Data.Forms;
 using Employee.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Employee.Services.AppServices.ApiAppService;
-using Employee.Services.AppServices.ApiAppService.ApiResponseAppService;
-using Employee.Services.JsonConverters;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Employee.Mvc.Controllers;
@@ -20,10 +18,16 @@ public class HomeController : Controller
 
     [HttpGet]
     public async Task<IActionResult> Index()
-        => await _iApiService.HandleApiGetCall<object, List<Data.Models.Employee>>
-        ("api/employee",
-            JsonSerializationOptions.GetDefaultOptions(),
-            "Index");
+    {
+        try
+        {
+            return View(await _iApiService.GetAllEmployees());
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
+    }
 
 
     [HttpGet]
@@ -40,12 +44,20 @@ public class HomeController : Controller
         if (!ModelState.IsValid)
             return View("AddEmployee", createEmployeeForm);
 
-        return await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
-        (HttpMethod.Post,
-            "api/employee",
-            createEmployeeForm,
-            null,
-            "Index", HttpContext);
+        try
+        {
+            var result = await _iApiService.AddEmployee(createEmployeeForm, HttpContext);
+            return result?.StatusCode switch
+            {
+                400 => View("AddEmployee", createEmployeeForm),
+                200 => RedirectToAction("Index"),
+                _ => View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"})
+            };
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
     }
 
     [HttpGet("EditEmployee/{id::int}")]
@@ -56,10 +68,14 @@ public class HomeController : Controller
             return View("Error",
                 new ErrorViewModel {Message = "An error occured!"});
 
-        return await _iApiService.HandleApiGetCall<object, Data.Models.Employee>
-        ($"api/employee/{id}",
-            JsonSerializationOptions.GetEmployeeOptions(),
-            "EditEmployee");
+        try
+        {
+            return View(await _iApiService.GetEmployee(id));
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
     }
 
     [HttpPost("EditEmployee/{id:int}")]
@@ -73,37 +89,51 @@ public class HomeController : Controller
         if (!ModelState.IsValid)
             return View("EditEmployee", updateEmployeeForm);
 
-        return await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
-        (HttpMethod.Put,
-            "api/employee",
-            updateEmployeeForm,
-            null,
-            "Index",
-            HttpContext);
+        try
+        {
+            var result = await _iApiService.EditEmployee(updateEmployeeForm, HttpContext);
+            return result?.StatusCode switch
+            {
+                400 => View("AddEmployee", updateEmployeeForm),
+                200 => RedirectToAction("Index"),
+                _ => View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"})
+            };
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
     }
 
 
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> DeleteEmployee(int id)
-        =>
-            await _iApiService.HandleApiCall<object, ApiResponseEmployeeBase>
-            (HttpMethod.Delete,
-                $"api/employee/{id}",
-                null,
-                null,
-                "Index",
-                HttpContext);
+    {
+        if (id < 1)
+            return View("Error",
+                new ErrorViewModel {Message = "An error occured!"});
+        try
+        {
+            var result = await _iApiService.DeleteEmployee(id, HttpContext);
+            return result?.StatusCode switch
+            {
+                200 => RedirectToAction("Index"),
+                _ => View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"})
+            };
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
+    }
 
 
     public IActionResult Privacy()
-    {
-        return View();
-    }
+        => View();
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error(string errorMessage)
-    {
-        return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,Message = errorMessage});
-    }
+        => View(new ErrorViewModel
+            {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = errorMessage});
 }

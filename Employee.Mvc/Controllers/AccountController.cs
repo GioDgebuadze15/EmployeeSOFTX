@@ -2,7 +2,6 @@
 using Employee.Data.Forms;
 using Employee.Data.Models;
 using Employee.Services.AppServices.ApiAppService;
-using Employee.Services.AppServices.ApiAppService.ApiResponseAppService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Employee.Mvc.Controllers;
@@ -28,21 +27,24 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid)
             return View("SignIn", loginUserForm);
-
-        var result = await _iApiService.HandleApiCall<object, ApiResponseUserBase>
-        (HttpMethod.Post,
-            "api/user/login",
-            loginUserForm,
-            null,
-            "Index",
-            null
-        );
-        
-        var token = (result as ContentResult)?.Content;
-        if (token is null) return result;
-
-        HttpContext.Response.Cookies.Append("employee-token", token);
-        return RedirectToAction("Index", "Home");
+        try
+        {
+            var result = await _iApiService.LoginUser(loginUserForm);
+            switch (result?.StatusCode)
+            {
+                case 404:
+                    return View("SignIn", loginUserForm);
+                case 200:
+                    HttpContext.Response.Cookies.Append("employee-token", result.Token!);
+                    return RedirectToAction("Index", "Home");
+                default:
+                    return View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"});
+            }
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
     }
 
     [HttpPost]
@@ -55,9 +57,7 @@ public class AccountController : Controller
 
     [HttpGet]
     public IActionResult SignUp()
-    {
-        return View(new CreateUserForm());
-    }
+        => View(new CreateUserForm());
 
     [HttpPost]
     public async Task<IActionResult> SignUp(CreateUserForm createUserForm)
@@ -65,28 +65,29 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View("SignUp", createUserForm);
 
-        var result = await _iApiService.HandleApiCall<object, ApiResponseUserBase>
-        (HttpMethod.Post,
-            "api/user/register",
-            createUserForm,
-            null,
-            "Index",
-            null
-        );
-
-
-        var token = (result as ContentResult)?.Content;
-        if (token is null) return result;
-
-        HttpContext.Response.Cookies.Append("employee-token", token);
-        return RedirectToAction("Index", "Home");
+        try
+        {
+            var result = await _iApiService.RegisterUser(createUserForm);
+            switch (result?.StatusCode)
+            {
+                case 404:
+                    return View("SignUp", createUserForm);
+                case 200:
+                    HttpContext.Response.Cookies.Append("employee-token", result.Token!);
+                    return RedirectToAction("Index", "Home");
+                default:
+                    return View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"});
+            }
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
     }
 
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error(string errorMessage)
-    {
-        return View(new ErrorViewModel
+        => View(new ErrorViewModel
             {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, Message = errorMessage});
-    }
 }

@@ -18,13 +18,9 @@ public class UserController : ApiController
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] CreateUserForm createUserForm)
-    {
-        return Ok(await _iUserService.RegisterUser(createUserForm));
-    }
+        => Ok(await _iUserService.RegisterUser(createUserForm));
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginUserForm loginUserForm)
-    {
-        return Ok(_iUserService.LoginUser(loginUserForm));
-    }
+        => Ok(_iUserService.LoginUser(loginUserForm));
 }
