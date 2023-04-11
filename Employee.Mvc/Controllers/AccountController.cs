@@ -33,7 +33,8 @@ public class AccountController : Controller
             switch (result?.StatusCode)
             {
                 case 404:
-                    return View("SignIn", loginUserForm);
+                    TempData["ErrorMessage"] = result.Error;
+                    return View(loginUserForm);
                 case 200:
                     HttpContext.Response.Cookies.Append("employee-token", result.Token!);
                     return RedirectToAction("Index", "Home");
@@ -63,15 +64,16 @@ public class AccountController : Controller
     public async Task<IActionResult> SignUp(CreateUserForm createUserForm)
     {
         if (!ModelState.IsValid)
-            return View("SignUp", createUserForm);
+            return View(createUserForm);
 
         try
         {
             var result = await _iApiService.RegisterUser(createUserForm);
             switch (result?.StatusCode)
             {
-                case 404:
-                    return View("SignUp", createUserForm);
+                case 400:
+                    TempData["ErrorMessage"] = result.Error;
+                    return View(createUserForm);
                 case 200:
                     HttpContext.Response.Cookies.Append("employee-token", result.Token!);
                     return RedirectToAction("Index", "Home");

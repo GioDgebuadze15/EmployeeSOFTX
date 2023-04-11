@@ -19,6 +19,5 @@ public class GenderConverter : JsonConverter<Gender>
 
     public override void Write(Utf8JsonWriter writer, Gender value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
     }
 }

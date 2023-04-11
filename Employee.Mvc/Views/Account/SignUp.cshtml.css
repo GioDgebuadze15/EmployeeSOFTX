@@ -2,12 +2,3 @@
     background-color: #272f40;
 }
 
-.loginButton {
-    text-decoration: none;
-}
-
-.loginButton:hover {
-    text-decoration: underline;
-    cursor: pointer;
-}
-

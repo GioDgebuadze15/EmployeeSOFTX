@@ -92,6 +92,10 @@
                                 </div>
                             </div>
 
+                            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+                            {
+                                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                            }
 
                             <button class="btn btn-outline-light px-5" type="submit">Add</button>
 

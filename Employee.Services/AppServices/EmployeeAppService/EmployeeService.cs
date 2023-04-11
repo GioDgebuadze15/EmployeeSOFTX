@@ -3,17 +3,20 @@ using Employee.Data.Models;
 using Employee.Data.ViewModels;
 using Employee.Database.DatabaseRepository;
 using Employee.Services.AppServices.ParserService;
+using Microsoft.Extensions.Logging;
 
 namespace Employee.Services.AppServices.EmployeeAppService;
 
 public class EmployeeService : IEmployeeService
 {
     private readonly IRepository<Data.Models.Employee> _ctx;
+    private readonly ILogger<EmployeeService> _logger;
     private readonly CustomParser<Gender?> _genderParser = new EnumParser<Gender>();
 
-    public EmployeeService(IRepository<Data.Models.Employee> ctx)
+    public EmployeeService(IRepository<Data.Models.Employee> ctx, ILogger<EmployeeService> logger)
     {
         _ctx = ctx;
+        _logger = logger;
     }
 
     public object GetEmployeeById(int id)
@@ -24,7 +27,7 @@ public class EmployeeService : IEmployeeService
         }
         catch (InvalidOperationException ex)
         {
-            //Todo: log the exception into file
+            _logger.LogError(ex, ex.Message);
             return new object();
         }
     }
@@ -35,7 +38,8 @@ public class EmployeeService : IEmployeeService
         var employees = _ctx.GetAll();
         return employees.Where(x =>
                 x.FirstName.ToLower().Contains(lowerCaseSearchString) ||
-                x.LastName.ToLower().Contains(lowerCaseSearchString))
+                x.LastName.ToLower().Contains(lowerCaseSearchString) ||
+                x.PersonalId.ToString().Contains(lowerCaseSearchString))
             .Select(EmployeeViewModels.Default.Compile())
             .ToList();
     }
@@ -87,14 +91,13 @@ public class EmployeeService : IEmployeeService
             employee.Position = updateEmployeeForm.Position;
             employee.EmployeeStatus = updateEmployeeForm.EmployeeStatus;
             employee.DateOfFire = updateEmployeeForm.DateOfFire;
-            
+
             await _ctx.Update(employee);
             return new EditEmployeeResponse(200, null, EmployeeViewModels.Default.Compile().Invoke(employee));
-
         }
         catch (InvalidOperationException ex)
         {
-            //Todo: log the exception into file
+            _logger.LogError(ex, ex.Message);
             return new EditEmployeeResponse(404, "Cant find employee to edit.", null);
         }
     }
@@ -109,7 +112,7 @@ public class EmployeeService : IEmployeeService
         }
         catch (InvalidOperationException ex)
         {
-            //Todo: log the exception into file
+            _logger.LogError(ex, ex.Message);
             return new DeleteEmployeeResponse(404, "Cant find person to delete.", null);
         }
     }

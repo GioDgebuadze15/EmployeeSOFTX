@@ -8,6 +8,7 @@ public interface IApiService
 {
     Task<List<Data.Models.Employee>> GetAllEmployees();
     Task<UpdateEmployeeForm> GetEmployee(int id);
+    Task<List<Data.Models.Employee>> GetEmployeesBySearchValue(string searchText);
     Task<ApiResponseEmployeeBase?> AddEmployee(CreateEmployeeForm createEmployeeForm, HttpContext httpContext);
     Task<ApiResponseEmployeeBase?> EditEmployee(UpdateEmployeeForm updateEmployeeForm, HttpContext httpContext);
     Task<ApiResponseEmployeeBase?> DeleteEmployee(int id, HttpContext httpContext);

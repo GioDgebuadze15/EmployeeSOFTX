@@ -58,6 +58,24 @@ public class ApiService : IApiService
         }
     }
 
+    public async Task<List<Data.Models.Employee>> GetEmployeesBySearchValue(string searchText)
+    {
+        try
+        {
+            return await HandleApiCallErrors(async () =>
+            {
+                var response = await _iHttpClientWrapper.GetAsync($"api/employee/search?searchString={searchText}");
+                return await response.Content.ReadFromJsonAsync<List<Data.Models.Employee>>(JsonSerializationOptions
+                           .GetDefaultOptions())
+                       ?? new List<Data.Models.Employee>();
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
     public async Task<ApiResponseEmployeeBase?> AddEmployee(CreateEmployeeForm createEmployeeForm,
         HttpContext httpContext)
     {
@@ -140,7 +158,7 @@ public class ApiService : IApiService
             return await HandleApiCallErrors(async () =>
             {
                 var response =
-                    await _iHttpClientWrapper.PostAsync("api/user/login", GetStringContent(createUserForm), null);
+                    await _iHttpClientWrapper.PostAsync("api/user/register", GetStringContent(createUserForm), null);
                 return await response.Content.ReadFromJsonAsync<ApiResponseUserBase>();
             });
         }

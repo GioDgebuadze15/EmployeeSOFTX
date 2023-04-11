@@ -20,6 +20,5 @@ public class EmployeeStatusConverter : JsonConverter<EmployeeStatus>
 
     public override void Write(Utf8JsonWriter writer, EmployeeStatus value, JsonSerializerOptions options)
     {
-        throw new NotImplementedException();
     }
 }

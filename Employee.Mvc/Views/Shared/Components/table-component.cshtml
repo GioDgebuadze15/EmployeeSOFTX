@@ -6,15 +6,17 @@
     </div>
 </form>
 
-<div class="input-group mb-3">
-    <input type="search" class="form-control bg-transparent text-white search" placeholder="Search"/>
-    <span class="input-group-text bg-transparent text-white search-span">
-        <i class="mdi mdi-magnify mdi-24px search-icon"></i>
-    </span>
-</div>
+<form asp-action="FilterEmployees" asp-controller="Home" method="get">
+    <div class="input-group mb-3">
+        <input type="search" class="form-control bg-transparent text-white search" placeholder="Search" id="filter-input"/>
+        <span class="input-group-text bg-transparent text-white search-span">
+            <i class="mdi mdi-magnify mdi-24px search-icon"></i>
+        </span>
+    </div>
+</form>
 
 <div class="table-div">
-    <table class="table table-hover shadow-lg rounded">
+    <table class="table table-hover shadow-lg rounded" id="employee-table">
         <thead>
         <tr>
             <th>First Name</th>
@@ -29,32 +31,37 @@
             <th>Controls</th>
         </tr>
         </thead>
-        <tbody>
-        @foreach (var employee in Model)
-        {
-            <tr>
-                <td>@employee.FirstName</td>
-                <td>@employee.LastName</td>
-                <td>@employee.Email</td>
-                <td>@employee.PersonalId</td>
-                <td>@employee.Gender</td>
-                <td>@employee.MobileNumber</td>
-                <td>@employee.Position</td>
-                <td>@employee.EmployeeStatus</td>
-                <td>@employee.DateOfFire?.ToShortDateString()</td>
-                <td>
-                    <a asp-action="EditEmployee" asp-controller="Home" asp-route-id="@employee.Id">
-                        <i class="mdi mdi-pencil mdi-24px edit"></i>
-                    </a>
-                    <form method="post" asp-controller="Home" asp-action="DeleteEmployee" asp-route-id="@employee.Id">
-                        <button type="submit">
-                            <i class="mdi mdi-trash-can-outline mdi-24px delete"></i>
-
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
+        <tbody id="employee-table-body">
+        @await Html.PartialAsync("_EmployeeTable", Model)
         </tbody>
     </table>
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+$(function () {
+    let timeout;
+    $("#filter-input").on("input", function () {
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            $.ajax({
+                url: "@Url.Action("FilterEmployees", "Home")",
+                type: "GET",
+                data: { searchText: $("#filter-input").val() },
+                success: function (result) {
+                     if ($("#filter-input").val() === "") {
+                         window.location.href = "/";
+                    }else{
+                         
+                    $("#employee-table-body").html(result);
+                    }
+                    },
+                error: function () {
+                }
+            });
+        }, 500);
+    });
+});
+
+
+</script>

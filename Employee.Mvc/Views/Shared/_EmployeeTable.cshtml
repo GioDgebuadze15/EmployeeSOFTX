@@ -1,0 +1,44 @@
+﻿@model List<Employee.Data.Models.Employee>
+
+@foreach (var employee in Model)
+{
+    <tr>
+        <td>@employee.FirstName</td>
+        <td>@employee.LastName</td>
+        <td>@employee.Email</td>
+        <td>@employee.PersonalId</td>
+        <td>@employee.Gender</td>
+        <td>@employee.MobileNumber</td>
+        <td>@employee.Position</td>
+        <td>@employee.EmployeeStatus</td>
+        <td>@employee.DateOfFire?.ToShortDateString()</td>
+        <td>
+            <div class="d-flex col">
+                <a asp-action="EditEmployee" asp-controller="Home" asp-route-id="@employee.Id" style="text-decoration: none; color: white">
+                    <i class="mdi mdi-pencil mdi-24px edit"></i>
+                </a>
+                <form id="delete-form-@employee.Id" method="post" asp-controller="Home" asp-action="DeleteEmployee" asp-route-id="@employee.Id">
+                    <i class="mdi mdi-trash-can-outline mdi-24px delete" onclick="showDeleteConfirmation('@employee.Id')"></i>
+                </form>
+            </div>
+        </td>
+    </tr>
+}
+
+
+<script>
+function showDeleteConfirmation(id) {
+    if (confirm("Are you sure you want to delete this employee?")) {
+       $.ajax({
+                   url: "@Url.Action("DeleteEmployee", "Home")",
+                   type: "POST",
+                   data: { id: id },
+                   success: function () {
+                       window.location.href = "/";
+                   },
+                   error: function () {
+                   }
+               });
+    }
+}
+</script>

@@ -29,6 +29,22 @@ public class HomeController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> FilterEmployees([FromQuery] string searchText)
+    {
+        if (string.IsNullOrEmpty(searchText))
+            return RedirectToAction("Index");
+        try
+        {
+            var result = await _iApiService.GetEmployeesBySearchValue(searchText);
+            return PartialView("_EmployeeTable", result);
+        }
+        catch (Exception ex)
+        {
+            return View("Error", new ErrorViewModel {Message = ex.Message});
+        }
+    }
+
 
     [HttpGet]
     [Authorize]
@@ -42,17 +58,21 @@ public class HomeController : Controller
     public async Task<IActionResult> AddEmployee(CreateEmployeeForm createEmployeeForm)
     {
         if (!ModelState.IsValid)
-            return View("AddEmployee", createEmployeeForm);
+            return View(createEmployeeForm);
 
         try
         {
             var result = await _iApiService.AddEmployee(createEmployeeForm, HttpContext);
-            return result?.StatusCode switch
+            switch (result?.StatusCode)
             {
-                400 => View("AddEmployee", createEmployeeForm),
-                200 => RedirectToAction("Index"),
-                _ => View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"})
-            };
+                case 400:
+                    TempData["ErrorMessage"] = result.Error;
+                    return View(createEmployeeForm);
+                case 200:
+                    return RedirectToAction("Index");
+                default:
+                    return View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"});
+            }
         }
         catch (Exception ex)
         {
@@ -87,17 +107,21 @@ public class HomeController : Controller
                 new ErrorViewModel {Message = "An error occured!"});
 
         if (!ModelState.IsValid)
-            return View("EditEmployee", updateEmployeeForm);
+            return View(updateEmployeeForm);
 
         try
         {
             var result = await _iApiService.EditEmployee(updateEmployeeForm, HttpContext);
-            return result?.StatusCode switch
+            switch (result?.StatusCode)
             {
-                400 => View("AddEmployee", updateEmployeeForm),
-                200 => RedirectToAction("Index"),
-                _ => View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"})
-            };
+                case 400:
+                    TempData["ErrorMessage"] = result.Error;
+                    return View(updateEmployeeForm);
+                case 200:
+                    return RedirectToAction("Index");
+                default:
+                    return View("Error", new ErrorViewModel {Message = result?.Error ?? "An error occured!"});
+            }
         }
         catch (Exception ex)
         {

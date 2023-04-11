@@ -74,7 +74,10 @@
                                        placeholder="Confirm Password" asp-for="ConfirmPassword"/>
                                 <span asp-validation-for="@Model.ConfirmPassword" class="text-danger"></span>
                             </div>
-
+                            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+                            {
+                                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                            }
 
                             <button class="btn btn-outline-light px-5" type="submit">Register</button>
 
@@ -83,7 +86,7 @@
                         <div>
                             <p class="my-2">
                                 Already Registered?
-                                <a class="loginButton" asp-controller="Account" asp-action="SignIn">
+                                <a class="loginButton" asp-controller="Account" asp-action="SignIn" style="text-decoration: none">
                                     <strong class="text-primary">Log in</strong>
                                 </a>
                             </p>
